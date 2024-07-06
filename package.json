@@ -1,19 +1,32 @@
 {
-  "name": "INTERVAL_PERSIST",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "compile": "tsc ./src/intervalPersist.ts --outDir ./dist"
+  "name": "zustand-interval-persist",
+  "version": "0.1.0",
+  "description": "A minimalistic state management solution, which saves data in storage at regular intervals.",
+  "main": "./src/intervalPersist.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YashChauhan858/zustand-interval-persist.git"
   },
-  "keywords": [],
-  "author": "",
+  "scripts": {},
+  "author": "Yash Chauhan",
   "license": "ISC",
-  "devDependencies": {
-    "typescript": "^5.5.3",
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "state",
+    "management",
+    "zustand",
+    "zustand-interval-persist",
+    "zustand-interval-save",
+    "zustand-persist",
+    "persist"
+  ],
+  "dependencies": {
     "zustand": "^4.5.4"
   },
-  "peerDependencies": {
+  "devDependencies": {
+    "typescript": "^5.5.3",
     "zustand": "^4.5.4"
   }
 }
