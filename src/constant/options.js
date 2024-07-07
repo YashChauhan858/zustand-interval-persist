@@ -4,6 +4,7 @@ export const validOptionKeys = [
   "intervalMs",
   "saveOnChange",
   "enable",
+  "hydrateOnLoad",
 ];
 
 export const defaultOptions = {
@@ -12,4 +13,5 @@ export const defaultOptions = {
   intervalMs: 10_000,
   saveOnChange: true,
   enable: true,
+  hydrateOnLoad: false,
 };

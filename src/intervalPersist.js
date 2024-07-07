@@ -1,48 +1,6 @@
-import { createStore } from "https://esm.sh/zustand/vanilla";
-// import { validOptionKeys } from "./constant/options.js";
-// import { giveValidOptions, isValidObject } from "./utils/helper.js";
-
-const validOptionKeys = [
-  "name",
-  "storage",
-  "intervalMs",
-  "saveOnChange",
-  "enable",
-];
-
-const defaultOptions = {
-  name: "zustand-store",
-  storage: localStorage,
-  intervalMs: 10_000,
-  saveOnChange: true,
-  enable: true,
-};
-
-const isValidObject = (object, keysArray) => {
-  if (!object) return false;
-  if (!keysArray || keysArray.length === 0) return true;
-  return Object.keys(object).every((key) => keysArray.includes(key));
-};
-const giveValidOptions = (options) => {
-  if (!options) return defaultOptions;
-  const validOptions = {};
-  if (!options?.name) {
-    validOptions.name = defaultOptions.name;
-  }
-  if (!options?.storage) {
-    validOptions.storage = defaultOptions.storage;
-  }
-  if (!options?.saveOnChange) {
-    validOptions.saveOnChange = defaultOptions.saveOnChange;
-  }
-  if (!options?.intervalMs) {
-    validOptions.intervalMs = defaultOptions.intervalMs;
-  }
-  if (!options?.enable) {
-    validOptions.enable = defaultOptions.enable;
-  }
-  return { ...validOptions, ...options };
-};
+import { createStore } from "zustand";
+import { validOptionKeys } from "./constant/options.js";
+import { giveValidOptions, isValidObject } from "./utils/helper.js";
 function intervalSave(config, options = undefined) {
   // this throws error if invalid options are provided
   if (!isValidObject(options, validOptionKeys))
@@ -67,17 +25,29 @@ function intervalSave(config, options = undefined) {
       saveState(get());
     }, middlewareOptions?.intervalMs);
 
-    // Load initial state if available
-    if (middlewareOptions.storage && middlewareOptions.name) {
+    // hydrate initial state if available
+    if (
+      middlewareOptions.hydrateOnLoad &&
+      middlewareOptions.storage &&
+      middlewareOptions.name
+    ) {
       const savedState = middlewareOptions.storage.getItem(
         middlewareOptions.name
       );
-      if (savedState) {
-        set(JSON.parse(savedState), true);
+      if (!!savedState && savedState !== "undefined") {
+        set(JSON.parse(savedState));
       }
     }
 
     // Extend api with methods to control saving
+
+    // rehydrate
+    api.rehydrate = () => {
+      if (middlewareOptions.hydrateOnLoad) return;
+      const data = middlewareOptions.storage.getItem(middlewareOptions.name);
+      if (!data) return null;
+      set(JSON.parse(data));
+    };
 
     // stop interval
     api.stopIntervalSave = () => {
