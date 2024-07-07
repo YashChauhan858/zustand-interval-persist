@@ -38,7 +38,9 @@ function intervalSave(config, options = undefined) {
         middlewareOptions.name
       );
       if (!!savedState && savedState !== "undefined") {
-        set(JSON.parse(savedState));
+        setTimeout(() => {
+          set(JSON.parse(savedState));
+        }, 0);
       }
     }
 
