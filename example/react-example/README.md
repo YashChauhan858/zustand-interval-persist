@@ -9,7 +9,7 @@ To test the zustand-interval-persist package locally without publishing it to np
 - Prepare the zustand-interval-persist Package: Navigate to the root directory of zustand-interval-persist:
 
 ```bash
-    cd path/to/zustand-interval-persist
+cd path/to/zustand-interval-persist
 ```
 
 - Run npm link to create a global symlink:
