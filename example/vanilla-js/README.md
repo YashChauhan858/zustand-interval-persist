@@ -21,7 +21,7 @@ npm link
 - Link the Package to This Example: Return to the example project directory:
 
 ```bash
-cd path/to/example/react-example
+cd path/to/example/vanilla-js
 ```
 
 - Run the following command to link the package:
