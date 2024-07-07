@@ -11,7 +11,7 @@ export const defaultOptions = {
   name: "zustand-store",
   storage: localStorage,
   intervalMs: 10_000,
-  saveOnChange: true,
+  saveOnChange: false,
   enable: true,
-  hydrateOnLoad: false,
+  hydrateOnLoad: true,
 };
