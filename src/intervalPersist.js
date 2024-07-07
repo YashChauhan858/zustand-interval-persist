@@ -1,4 +1,4 @@
-import { createStore } from "zustand";
+import { create } from "zustand";
 import { validOptionKeys } from "./constant/options.js";
 import { giveValidOptions, isValidObject } from "./utils/helper.js";
 function intervalSave(config, options = undefined) {
@@ -100,7 +100,7 @@ function intervalSave(config, options = undefined) {
 function storeOnInterval(storeCreator, options) {
   const middleware = intervalSave(storeCreator, options);
   // It returns a function that expects middleware as its argument
-  const store = createStore();
+  const store = create();
   return store(middleware);
 }
 
