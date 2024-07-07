@@ -11,7 +11,6 @@ function intervalSave(config, options = undefined) {
 
   return (set, get, api) => {
     function saveState(state) {
-      if (!middlewareOptions.enable) return;
       if (middlewareOptions.storage && middlewareOptions.name) {
         middlewareOptions.storage.setItem(
           middlewareOptions.name,
@@ -20,12 +19,16 @@ function intervalSave(config, options = undefined) {
       }
     }
 
+    let intervalId = null;
     // Set up interval saving
-    let intervalId = setInterval(() => {
-      saveState(get());
-    }, middlewareOptions?.intervalMs);
+    if (middlewareOptions.enable) {
+      intervalId = setInterval(() => {
+        if (!middlewareOptions.enable) return;
+        saveState(get());
+      }, middlewareOptions?.intervalMs);
+    }
 
-    // hydrate initial state if available
+    // hydrate initial state if available and opted by user
     if (
       middlewareOptions.hydrateOnLoad &&
       middlewareOptions.storage &&
@@ -51,6 +54,7 @@ function intervalSave(config, options = undefined) {
 
     // stop interval
     api.stopIntervalSave = () => {
+      if (!middlewareOptions.enable) return;
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
@@ -59,11 +63,11 @@ function intervalSave(config, options = undefined) {
 
     // start interval
     api.startIntervalSave = () => {
+      if (!middlewareOptions.enable) return;
       api.stopIntervalSave();
-      intervalId = setInterval(
-        () => saveState(get()),
-        middlewareOptions?.intervalMs
-      );
+      intervalId = setInterval(() => {
+        saveState(get());
+      }, middlewareOptions?.intervalMs);
     };
 
     // save immediately
@@ -74,6 +78,7 @@ function intervalSave(config, options = undefined) {
     if (!document) throw new Error("Document is not available");
 
     document?.addEventListener("visibilitychange", () => {
+      if (!middlewareOptions.enable) return;
       if (document.hidden) {
         api.stopIntervalSave();
       } else {
