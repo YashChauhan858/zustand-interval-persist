@@ -1,8 +1,14 @@
 import { create } from "zustand";
 import { validOptionKeys } from "./constant/options.js";
-import { giveValidOptions, isValidObject } from "./utils/helper.js";
+import {
+  giveValidOptions,
+  handleIntervalOnWindowVisibility,
+  isValidObject,
+  saveState,
+} from "./utils/helper.js";
+
 function intervalSave(config, options = undefined) {
-  // this throws error if invalid options are provided
+  // Throws error if invalid options are provided
   if (!isValidObject(options, validOptionKeys))
     throw new Error("Invalid options provided");
 
@@ -10,25 +16,19 @@ function intervalSave(config, options = undefined) {
   const middlewareOptions = giveValidOptions(options);
 
   return (set, get, api) => {
-    function saveState(state) {
-      if (middlewareOptions.storage && middlewareOptions.name) {
-        middlewareOptions.storage.setItem(
-          middlewareOptions.name,
-          JSON.stringify(state)
-        );
-      }
-    }
-
     let intervalId = null;
+
     // Set up interval saving
     if (middlewareOptions.enable) {
       intervalId = setInterval(() => {
-        if (!middlewareOptions.enable) return;
-        saveState(get());
+        saveState(get(), middlewareOptions);
       }, middlewareOptions?.intervalMs);
     }
 
-    // hydrate initial state if available and opted by user
+    /**
+     * Hydrate initial state if available and opted by user
+     * by setting hydrateOnLoad option to true
+     */
     if (
       middlewareOptions.hydrateOnLoad &&
       middlewareOptions.storage &&
@@ -46,7 +46,10 @@ function intervalSave(config, options = undefined) {
 
     // Extend api with methods to control saving
 
-    // rehydrate
+    /**
+     * Rehydrates the store state from the storage.
+     * will work only when hydrateOnLoad is set to false
+     */
     api.rehydrate = () => {
       if (middlewareOptions.hydrateOnLoad) return;
       const data = middlewareOptions.storage.getItem(middlewareOptions.name);
@@ -54,7 +57,9 @@ function intervalSave(config, options = undefined) {
       set(JSON.parse(data));
     };
 
-    // stop interval
+    /**
+     * Stops the automatic interval saving.
+     */
     api.stopIntervalSave = () => {
       if (!middlewareOptions.enable) return;
       if (intervalId) {
@@ -63,37 +68,38 @@ function intervalSave(config, options = undefined) {
       }
     };
 
-    // start interval
+    /**
+     * Starts the automatic interval saving.
+     */
     api.startIntervalSave = () => {
       if (!middlewareOptions.enable) return;
       api.stopIntervalSave();
       intervalId = setInterval(() => {
-        saveState(get());
+        saveState(get(), middlewareOptions);
       }, middlewareOptions?.intervalMs);
     };
 
-    // save immediately
-    api.saveNow = () => saveState(get());
+    /**
+     * Saves the current state immediately.
+     */
+    api.saveNow = () => saveState(get(), middlewareOptions);
 
-    // stop interval save when window is not visible or tab is not active
-
-    if (!document) throw new Error("Document is not available");
-
-    document?.addEventListener("visibilitychange", () => {
-      if (!middlewareOptions.enable) return;
-      if (document.hidden) {
-        api.stopIntervalSave();
-      } else {
-        api.startIntervalSave();
-      }
-    });
+    /**
+     * Stops the automatic interval saving when the tab is hidden
+     * and starts when window is visible
+     */
+    handleIntervalOnWindowVisibility(
+      api.stopIntervalSave,
+      api.startIntervalSave,
+      middlewareOptions
+    );
 
     const store = config(
       (...args) => {
         set(...args);
         // Optionally save immediately on state change
         if (middlewareOptions?.saveOnChange) {
-          saveState(get());
+          saveState(get(), middlewareOptions);
         }
       },
       get,
