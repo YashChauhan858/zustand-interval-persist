@@ -1,6 +1,6 @@
 {
   "name": "zustand-interval-persist",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "A minimalistic state management solution, which saves data in storage at regular intervals.",
   "main": "./src/intervalPersist.js",
   "repository": {

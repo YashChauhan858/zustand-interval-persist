@@ -61,7 +61,12 @@ export const handleIntervalOnWindowVisibility = (
   startIntervalSave,
   middlewareOptions
 ) => {
-  if (!document || !middlewareOptions?.enable) return;
+  if (
+    typeof document === "undefined" ||
+    !document ||
+    !middlewareOptions?.enable
+  )
+    return;
   document?.addEventListener?.("visibilitychange", () => {
     if (document.hidden) {
       stopIntervalSave();
